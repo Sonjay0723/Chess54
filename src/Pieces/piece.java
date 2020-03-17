@@ -6,11 +6,11 @@ import Chess.position;
 public abstract class piece {
 	
 	String value;
-	boolean priorMove;
+	int priorMove;
 	
 	public piece(String value) {
 		this.value = value;
-		priorMove = false;
+		priorMove = 0;
 	}
 
 	public String getValue() {
@@ -25,11 +25,11 @@ public abstract class piece {
 		return value.charAt(1);
 	}
 	
-	public boolean getMovement() {
+	public int getMovement() {
 		return this.priorMove;
 	}
 	
-	public void setMovement(boolean moved) {
+	public void setMovement(int moved) {
 		this.priorMove = moved;
 	}
 	
@@ -37,6 +37,10 @@ public abstract class piece {
 		if(chess.board.get(new position(row,column)).getValue().equals("  ") || chess.board.get(new position(row,column)).getValue().equals("##")){
 			return true;
 		}
+		return false;
+	}
+	
+	public boolean validMove(position oldPos, position newPos) {
 		return false;
 	}
 }

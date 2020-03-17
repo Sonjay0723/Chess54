@@ -19,28 +19,6 @@ public class position {
 		return col;
 	}
 	
-	public char getColLetter() {
-		if(col == 1)
-			return 'a';
-		else if(col == 2)
-			return 'b';
-		else if(col == 3)
-			return 'c';
-		else if(col == 4)
-			return 'd';
-		else if(col == 5)
-			return 'e';
-		else if(col == 6)
-			return 'f';
-		else if(col == 7)
-			return 'g';
-		return 'h';
-	}
-	
-	public String getStrPos() {
-		return (Character.toString(getColLetter())+Integer.toString(row));
-	}
-	
 	public void setRow(int row) {
 		this.row = row;
 	}
