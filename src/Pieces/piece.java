@@ -36,4 +36,22 @@ public abstract class piece {
 	public boolean validMove(position oldPos, position newPos) {
 		return true;
 	}
+	
+	public int getColInt(char col) {
+		if(col == 'a')
+			return 1;
+		else if(col == 'b')
+			return 2;
+		else if(col == 'c')
+			return 3;
+		else if(col == 'd')
+			return 4;
+		else if(col == 'e')
+			return 5;
+		else if(col == 'f')
+			return 6;
+		else if(col == 'g')
+			return 7;
+		return 8;
+	}
 }

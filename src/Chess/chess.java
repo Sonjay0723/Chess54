@@ -510,6 +510,32 @@ public class chess {
 		return true;
 	}
 	
+	private static String kingPosition(boolean isWhite) {
+		piece oppPieces = null;
+		String retVal = "";
+		
+		//Find King
+		for (position opponentPiecePos: board.keySet()) {
+			oppPieces = board.get(opponentPiecePos);
+			if(isWhite) {
+				if(oppPieces.getValue() == "wK")
+					retVal = getColLetter(opponentPiecePos.getColumn()) + Integer.toString(opponentPiecePos.getRow());
+			}
+			else {
+				if(oppPieces.getValue() == "bK")
+					retVal = getColLetter(opponentPiecePos.getColumn()) + Integer.toString(opponentPiecePos.getRow());
+			}
+		}
+		
+		return retVal;
+	}
+	
+	private static boolean isBlackBox(int row, int col) {
+		if(((row%2 == 1) && (col%2 == 1)) || ((row%2 == 0) && (col%2 == 0)))
+			return false;
+		return true;
+	}
+	
 	private static int getColInt(char col) {
 
 		if(col == 'a')
@@ -550,31 +576,4 @@ public class chess {
 	private static position toIntPosition(String loc) {
 		return (new position(Integer.parseInt(String.valueOf(loc.charAt(1))), getColInt(loc.charAt(0))));
 	}
-	
-	public static boolean isBlackBox(int row, int col) {
-		if(((row%2 == 1) && (col%2 == 1)) || ((row%2 == 0) && (col%2 == 0)))
-			return false;
-		return true;
-	}
-	
-	private static String kingPosition(boolean isWhite) {
-		piece oppPieces = null;
-		String retVal = "";
-		
-		//Find King
-		for (position opponentPiecePos: board.keySet()) {
-			oppPieces = board.get(opponentPiecePos);
-			if(isWhite) {
-				if(oppPieces.getValue() == "wK")
-					retVal = getColLetter(opponentPiecePos.getColumn()) + Integer.toString(opponentPiecePos.getRow());
-			}
-			else {
-				if(oppPieces.getValue() == "bK")
-					retVal = getColLetter(opponentPiecePos.getColumn()) + Integer.toString(opponentPiecePos.getRow());
-			}
-		}
-		
-		return retVal;
-	}
-
 }
