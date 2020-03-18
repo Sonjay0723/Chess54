@@ -88,7 +88,7 @@ public class chess {
 			
 			//check to see if input is valid
 			if((!input.toLowerCase().equals("resign") && !input.toLowerCase().equals("draw")) && (input.length() > 11 || input.charAt(2)!=' '|| !Character.isLetter(input.charAt(0)) || !Character.isLetter(input.charAt(3)) || Character.isLetter(input.charAt(1)) || Character.isLetter(input.charAt(4)))) {
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again1\n");
 				continue;
 			}
 			
@@ -122,41 +122,43 @@ public class chess {
 			
 			//check if input is valid
 			if(inputArr.length<2) {
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again2\n");
 				continue;
 			}
 			
 			//check if attempting to mpve empty square
 			if(chess.board.get(toIntPosition(inputArr[0])) instanceof emptySquare) {
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again3\n");
 				continue;
 			}
 			//check if out of bounds movement
-			if(toIntPosition(inputArr[1]).getColumn() > 8 || toIntPosition(inputArr[1]).getColumn() < 1 || toIntPosition(inputArr[1]).getRow() > 1 || toIntPosition(inputArr[1]).getRow() < 8) {
-				System.out.println("Illegal move, try again\n");
+			if(toIntPosition(inputArr[1]).getColumn() > 8 || toIntPosition(inputArr[1]).getColumn() < 1 || toIntPosition(inputArr[1]).getRow() < 1 || toIntPosition(inputArr[1]).getRow() > 8 || toIntPosition(inputArr[0]).getColumn() > 8 || toIntPosition(inputArr[0]).getColumn() < 1 || toIntPosition(inputArr[0]).getRow() < 1 || toIntPosition(inputArr[0]).getRow() > 8 ) {
+				System.out.println("Illegal move, try again4\n");
 				continue;
 			}
 			//check if player is attempting to move other player's piece
 			if(whiteMove && (board.get(toIntPosition(inputArr[0])).getColor()=='b')){
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again5\n");
 				continue;
 			}
 			else if(!whiteMove && (board.get(toIntPosition(inputArr[0])).getColor()=='w')){
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again6\n");
 				continue;
 			}
 			//check if trying to take over same color
 			if(!(chess.board.get(toIntPosition(inputArr[1])) instanceof emptySquare)) {
 				if(chess.board.get(toIntPosition(inputArr[0])).getColor() == chess.board.get(toIntPosition(inputArr[1])).getColor()) {
-					System.out.println("Illegal move, try again\n");
+					System.out.println("Illegal move, try again7\n");
 					continue;
 				}
 			}
 			
 			//check if third input is valid
-			if(inputArr[2]!=null && !inputArr[2].toLowerCase().equals("draw?") && inputArr[2].length()>1) {
-				System.out.println("Illegal move, try again\n");
-				continue;
+			if(inputArr.length>2) {
+				if(!inputArr[2].toLowerCase().equals("draw?") && inputArr[2].length()>1) {
+					System.out.println("Illegal move, try again8\n");
+					continue;
+				}
 			}
 			
 			//check if move it valid, then do all other steps!
@@ -164,8 +166,10 @@ public class chess {
 			if(currPiece.validMove(toIntPosition(inputArr[0]), toIntPosition(inputArr[1])) || isCastling(inputArr[0], inputArr[1], whiteMove)) {
 				
 				//check if draw is being asked for
-				if(inputArr[2]!=null && inputArr[2].toLowerCase().equals("draw?"))
-					askDraw = true;
+				if(inputArr.length>2) {
+					if(inputArr[2]!=null && inputArr[2].toLowerCase().equals("draw?"))
+						askDraw = true;
+				}
 				
 				//check to see if check would result after movement
 				piece movingPiece = board.get(toIntPosition(inputArr[0]));
@@ -182,7 +186,7 @@ public class chess {
 				//If movement results in getting into check
 				String positionK = kingPosition(whiteMove);
 				if(isCheck(positionK, whiteMove)) {
-					System.out.println("Illegal move, try again\n");
+					System.out.println("Illegal move, try again9\n");
 					//go back to OG position
 					movingPiece.setMovement(movingPiece.getMovement()-1);
 					board.put(toIntPosition(inputArr[0]), movingPiece);
@@ -273,7 +277,7 @@ public class chess {
 				}
 			}
 			else{
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again10\n");
 				continue;
 			}		
 		}
