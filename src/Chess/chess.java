@@ -206,7 +206,7 @@ public class chess {
 							board.put(new position(rowNum,colNum+1), new emptySquare("  "));
 					}
 					else if(colNum-1 == newColNum) {
-						if(isBlackBox(rowNum,colNum+1))
+						if(isBlackBox(rowNum,colNum-1))
 							board.put(new position(rowNum,colNum-1), new emptySquare("##"));
 						else
 							board.put(new position(rowNum,colNum-1), new emptySquare("  "));
@@ -220,6 +220,7 @@ public class chess {
 					//move rook(on right or on left)
 					if(newColNum + 1 == 8) {
 						board.put(new position(rowNum, 6), board.get(new position(rowNum,8)));
+						board.get(new position(rowNum, 6)).setMovement(board.get(new position(rowNum, 6)).getMovement()+1);
 						if(isBlackBox(rowNum,8))
 							board.put(new position(rowNum,8), new emptySquare("##"));
 						else
@@ -227,7 +228,8 @@ public class chess {
 					}
 					else {
 						board.put(new position(rowNum, 4), board.get(new position(rowNum,1)));
-						if(isBlackBox(rowNum,8))
+						board.get(new position(rowNum, 4)).setMovement(board.get(new position(rowNum, 4)).getMovement()+1);
+						if(isBlackBox(rowNum,1))
 							board.put(new position(rowNum,1), new emptySquare("##"));
 						else
 							board.put(new position(rowNum,1), new emptySquare("  "));
