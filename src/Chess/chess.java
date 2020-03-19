@@ -88,7 +88,7 @@ public class chess {
 			
 			//check to see if input is valid
 			if((!input.toLowerCase().equals("resign") && !input.toLowerCase().equals("draw")) && (input.length() > 11 || input.charAt(2)!=' '|| !Character.isLetter(input.charAt(0)) || !Character.isLetter(input.charAt(3)) || Character.isLetter(input.charAt(1)) || Character.isLetter(input.charAt(4)))) {
-				System.out.println("Illegal move, try again1\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			
@@ -122,33 +122,33 @@ public class chess {
 			
 			//check if input is valid
 			if(inputArr.length<2) {
-				System.out.println("Illegal move, try again2\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			
 			//check if attempting to move empty square
 			if(chess.board.get(toIntPosition(inputArr[0])) instanceof emptySquare) {
-				System.out.println("Illegal move, try again3\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			//check if out of bounds movement
 			if(toIntPosition(inputArr[1]).getColumn() > 8 || toIntPosition(inputArr[1]).getColumn() < 1 || toIntPosition(inputArr[1]).getRow() < 1 || toIntPosition(inputArr[1]).getRow() > 8 || toIntPosition(inputArr[0]).getColumn() > 8 || toIntPosition(inputArr[0]).getColumn() < 1 || toIntPosition(inputArr[0]).getRow() < 1 || toIntPosition(inputArr[0]).getRow() > 8 ) {
-				System.out.println("Illegal move, try again4\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			//check if player is attempting to move other player's piece
 			if(whiteMove && (board.get(toIntPosition(inputArr[0])).getColor()=='b')){
-				System.out.println("Illegal move, try again5\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			else if(!whiteMove && (board.get(toIntPosition(inputArr[0])).getColor()=='w')){
-				System.out.println("Illegal move, try again6\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			//check if trying to take over same color
 			if(!(chess.board.get(toIntPosition(inputArr[1])) instanceof emptySquare)) {
 				if(chess.board.get(toIntPosition(inputArr[0])).getColor() == chess.board.get(toIntPosition(inputArr[1])).getColor()) {
-					System.out.println("Illegal move, try again7\n");
+					System.out.println("Illegal move, try again\n");
 					continue;
 				}
 			}
@@ -156,7 +156,7 @@ public class chess {
 			//check if third input is valid
 			if(inputArr.length>2) {
 				if(!inputArr[2].toLowerCase().equals("draw?") && inputArr[2].length()>1) {
-					System.out.println("Illegal move, try again8\n");
+					System.out.println("Illegal move, try again\n");
 					continue;
 				}
 			}
@@ -186,7 +186,7 @@ public class chess {
 				//If movement results in getting into check
 				String positionK = kingPosition(whiteMove);
 				if(isCheck(positionK, whiteMove)) {
-					System.out.println("Illegal move, try again9\n");
+					System.out.println("Illegal move, try again\n");
 					//go back to OG position
 					movingPiece.setMovement(movingPiece.getMovement()-1);
 					board.put(toIntPosition(inputArr[0]), movingPiece);
@@ -264,6 +264,7 @@ public class chess {
 					
 				//it is now the other person's turn!
 				whiteMove = !whiteMove;
+				printBoard();
 				
 				//check if there is a checkmate with current player now that old player has made a move
 				if(isCheckMate(kingPosition(whiteMove), whiteMove)) {
@@ -279,7 +280,7 @@ public class chess {
 				}
 			}
 			else{
-				System.out.println("Illegal move, try again10\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}		
 		}
@@ -446,7 +447,7 @@ public class chess {
 			//for all other black pieces, test if any of them can move to given position
 			for (position opponentPiecePos: board.keySet()) {
 				oppPieces = board.get(opponentPiecePos);
-				if(oppPieces.getValue().charAt(0)=='b' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK)))
+				if(oppPieces.getValue().charAt(0)=='b' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK),isWhiteMove))
 					return true;
 			}
 		}
@@ -456,7 +457,7 @@ public class chess {
 			//for all other white pieces, test if any of them can move to given position
 			for (position opponentPiecePos: board.keySet()) {
 				oppPieces = board.get(opponentPiecePos);
-				if(oppPieces.getValue().charAt(0)=='w' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK)))
+				if(oppPieces.getValue().charAt(0)=='w' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK),isWhiteMove))
 					return true;
 			}
 		}
@@ -541,36 +542,36 @@ public class chess {
 	private static int getColInt(char col) {
 
 		if(col == 'a')
-			return 1;
+			return 8;
 		else if(col == 'b')
-			return 2;
-		else if(col == 'c')
-			return 3;
-		else if(col == 'd')
-			return 4;
-		else if(col == 'e')
-			return 5;
-		else if(col == 'f')
-			return 6;
-		else if(col == 'g')
 			return 7;
-		return 8;
+		else if(col == 'c')
+			return 6;
+		else if(col == 'd')
+			return 5;
+		else if(col == 'e')
+			return 4;
+		else if(col == 'f')
+			return 3;
+		else if(col == 'g')
+			return 2;
+		return 1;
 	}
 	
 	private static char getColLetter(int colNum) {
-		if(colNum == 1)
+		if(colNum == 8)
 			return 'a';
-		else if(colNum == 2)
-			return 'b';
-		else if(colNum == 3)
-			return 'c';
-		else if(colNum == 4)
-			return 'd';
-		else if(colNum == 5)
-			return 'e';
-		else if(colNum == 6)
-			return 'f';
 		else if(colNum == 7)
+			return 'b';
+		else if(colNum == 6)
+			return 'c';
+		else if(colNum == 5)
+			return 'd';
+		else if(colNum == 4)
+			return 'e';
+		else if(colNum == 3)
+			return 'f';
+		else if(colNum == 2)
 			return 'g';
 		return 'h';
 	}
