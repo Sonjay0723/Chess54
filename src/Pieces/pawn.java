@@ -43,8 +43,15 @@ public class pawn extends piece{
 		}
 		//if 2 steps ahead, MUST BE FIRST MOVE
 		else if(Math.abs(rowNum-newRowNum)==2 && Math.abs(colNum-newColNum)==0 && chess.board.get(newPos) instanceof emptySquare) {
-			if(chess.board.get(currPos).getMovement()==0)
+			if(chess.board.get(currPos).getMovement()==0) {
+				if (newRowNum > rowNum && !(chess.board.get(new position(rowNum + 1, colNum)) instanceof emptySquare))
+					return false;
+				if (newRowNum < rowNum && !(chess.board.get(new position(rowNum - 1, colNum)) instanceof emptySquare))
+					return false;
+				
 				return true;
+			}
+				
 		}
 		//otherwise only one step ahead
 		else if(Math.abs(rowNum-newRowNum)==1 && Math.abs(colNum-newColNum)==0 && chess.board.get(newPos) instanceof emptySquare)

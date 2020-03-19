@@ -18,8 +18,39 @@ public class bishop extends piece{
 		int newColNum = newPos.getColumn();
 		
 		//check if move valid(diagonal only, cannot move from old position->same old position)
-		if(Math.abs(rowNum - newRowNum) == Math.abs (colNum - newColNum) && !currPos.equals(newPos))
-				return true;
+		if(Math.abs(rowNum - newRowNum) == Math.abs(colNum - newColNum) && !currPos.equals(newPos)) {
+			boolean up = (rowNum - newRowNum) < 0 ? true : false;
+			boolean right = (colNum - newColNum) < 0 ? false : true;
+			
+			if (up) {
+				for (int i = rowNum + 1; i < newRowNum; i++) {
+					int j;
+					
+					if (!right)
+						j = i - rowNum + colNum;
+					else
+						j = rowNum - i + colNum;
+					
+					if (!(chess.board.get(new position(i, j)) instanceof emptySquare))
+						return false;
+				}
+			}
+			else {
+				for (int i = rowNum - 1; i > newRowNum; i--) {
+					int j;
+					
+					if (!right)
+						j = i - rowNum + colNum;
+					else
+						j = rowNum - i + colNum;
+					
+					if (!(chess.board.get(new position(i, j)) instanceof emptySquare))
+						return false;
+				}
+			}
+			
+			return true;
+		}
 		
 		return false;
 	}
