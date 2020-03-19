@@ -27,6 +27,28 @@ public class position {
 		this.col = col;
 	}
 	
+	public String toStringPos() {
+		return (String.valueOf(getColLetter(this.getColumn())).concat(Integer.toString(this.getRow())));
+	}
+	
+	public static char getColLetter(int colNum) {
+		if(colNum == 8)
+			return 'a';
+		else if(colNum == 7)
+			return 'b';
+		else if(colNum == 6)
+			return 'c';
+		else if(colNum == 5)
+			return 'd';
+		else if(colNum == 4)
+			return 'e';
+		else if(colNum == 3)
+			return 'f';
+		else if(colNum == 2)
+			return 'g';
+		return 'h';
+	}
+	
 	 @Override
 	    public boolean equals(Object obj) {
 	       if (!(obj instanceof position))

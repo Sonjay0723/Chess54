@@ -6,10 +6,12 @@ public abstract class piece {
 	
 	String value;
 	int priorMove;
+	int canEnPassant;
 	
 	public piece(String value) {
 		this.value = value;
 		priorMove = 0;
+		canEnPassant = -1;
 	}
 
 	public String getValue() {
@@ -32,11 +34,15 @@ public abstract class piece {
 		this.priorMove = moved;
 	}
 	
-	public boolean validMove(position oldPos, position newPos, boolean isWhite) {
-		return true;
+	public int getCanEnPassant() {
+		return this.canEnPassant;
 	}
 	
-	public String toStringPos(position changePos) {
-		return (Integer.toString(changePos.getColumn()) + Integer.toString(changePos.getRow()));
+	public void setEnPassant(int value) {
+		this.canEnPassant = value;
+	}
+	
+	public boolean validMove(position oldPos, position newPos, boolean isWhite, int numTurn) {
+		return true;
 	}
 }

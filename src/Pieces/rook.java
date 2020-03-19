@@ -9,7 +9,7 @@ public class rook extends piece{
 	}
 	
 	@Override
-	public boolean validMove(position currPos, position newPos, boolean isWhite) {
+	public boolean validMove(position currPos, position newPos, boolean isWhite, int numTurn) {
 		
 		//calculate rowNumbers and column numbers
 		int rowNum = currPos.getRow();

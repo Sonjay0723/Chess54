@@ -10,7 +10,7 @@ public class king extends piece{
 	}
 	
 	@Override
-	public boolean validMove(position currPos, position newPos, boolean isWhite) {
+	public boolean validMove(position currPos, position newPos, boolean isWhite, int numTurn) {
 		
 		//calculate rowNumbers and column numbers
 		int rowNum = currPos.getRow();
@@ -24,7 +24,7 @@ public class king extends piece{
 				
 		//If Castling
 		if(Math.abs(newColNum-colNum)==2) {
-			if(chess.isCastling(toStringPos(currPos), toStringPos(newPos), isWhite))
+			if(chess.isCastling(currPos.toStringPos(), newPos.toStringPos(), isWhite, numTurn))
 				return true;
 		}
 		//If moved Diagonally

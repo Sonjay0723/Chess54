@@ -72,6 +72,7 @@ public class chess {
 		
 		boolean whiteMove = true;
 		boolean askDraw = false;
+		int numTurns = 0;
 		
 		Scanner gamePlay = new Scanner(System.in);
 		
@@ -88,7 +89,7 @@ public class chess {
 			
 			//check to see if input is valid
 			if((!input.toLowerCase().equals("resign") && !input.toLowerCase().equals("draw")) && (input.length() > 11 || input.charAt(2)!=' '|| !Character.isLetter(input.charAt(0)) || !Character.isLetter(input.charAt(3)) || Character.isLetter(input.charAt(1)) || Character.isLetter(input.charAt(4)))) {
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again1\n");
 				continue;
 			}
 			
@@ -114,7 +115,6 @@ public class chess {
 				}
 				else
 					askDraw = false;
-					continue;
 			}
 			
 			//Check all other movements in the game
@@ -122,33 +122,33 @@ public class chess {
 			
 			//check if input is valid
 			if(inputArr.length<2) {
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again2\n");
 				continue;
 			}
 			
 			//check if attempting to move empty square
 			if(chess.board.get(toIntPosition(inputArr[0])) instanceof emptySquare) {
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again3\n");
 				continue;
 			}
 			//check if out of bounds movement
 			if(toIntPosition(inputArr[1]).getColumn() > 8 || toIntPosition(inputArr[1]).getColumn() < 1 || toIntPosition(inputArr[1]).getRow() < 1 || toIntPosition(inputArr[1]).getRow() > 8 || toIntPosition(inputArr[0]).getColumn() > 8 || toIntPosition(inputArr[0]).getColumn() < 1 || toIntPosition(inputArr[0]).getRow() < 1 || toIntPosition(inputArr[0]).getRow() > 8 ) {
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again4\n");
 				continue;
 			}
 			//check if player is attempting to move other player's piece
 			if(whiteMove && (board.get(toIntPosition(inputArr[0])).getColor()=='b')){
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again5\n");
 				continue;
 			}
 			else if(!whiteMove && (board.get(toIntPosition(inputArr[0])).getColor()=='w')){
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again6\n");
 				continue;
 			}
 			//check if trying to take over same color
 			if(!(chess.board.get(toIntPosition(inputArr[1])) instanceof emptySquare)) {
 				if(chess.board.get(toIntPosition(inputArr[0])).getColor() == chess.board.get(toIntPosition(inputArr[1])).getColor()) {
-					System.out.println("Illegal move, try again\n");
+					System.out.println("Illegal move, try again7\n");
 					continue;
 				}
 			}
@@ -156,14 +156,14 @@ public class chess {
 			//check if third input is valid
 			if(inputArr.length>2) {
 				if(!inputArr[2].toLowerCase().equals("draw?") && inputArr[2].length()>1) {
-					System.out.println("Illegal move, try again\n");
+					System.out.println("Illegal move, try again8\n");
 					continue;
 				}
 			}
 			
 			//check if move it valid, then do all other steps!
 			piece currPiece = board.get(toIntPosition(inputArr[0]));
-			if(currPiece.validMove(toIntPosition(inputArr[0]), toIntPosition(inputArr[1]), whiteMove) || isCastling(inputArr[0], inputArr[1], whiteMove)) {
+			if(currPiece.validMove(toIntPosition(inputArr[0]), toIntPosition(inputArr[1]), whiteMove, numTurns)) {
 				
 				//check if draw is being asked for
 				if(inputArr.length>2) {
@@ -185,8 +185,8 @@ public class chess {
 				
 				//If movement results in getting into check
 				String positionK = kingPosition(whiteMove);
-				if(isCheck(positionK, whiteMove)) {
-					System.out.println("Illegal move, try again\n");
+				if(isCheck(positionK, whiteMove, numTurns)) {
+					System.out.println("Illegal move, try again9\n");
 					//go back to OG position
 					movingPiece.setMovement(movingPiece.getMovement()-1);
 					board.put(toIntPosition(inputArr[0]), movingPiece);
@@ -194,11 +194,16 @@ public class chess {
 					continue;
 				}
 				
-				//Check EnPassant
-				if(isEnPassant(inputArr[0], inputArr[1], whiteMove)) {
+				//reverse
+				board.put(toIntPosition(inputArr[0]), movingPiece);
+				board.put(toIntPosition(inputArr[1]), takeOverPiece);
+				
+				//check EnPassant
+				if(isEnPassant(inputArr[0], inputArr[1], whiteMove, numTurns)) {
 					int rowNum = Integer.parseInt(String.valueOf(inputArr[0].charAt(1)));
 					int colNum = getColInt(inputArr[0].charAt(0));
 					int newColNum = getColInt(inputArr[1].charAt(0));
+					//Check if removing to left or to right
 					if(colNum+1 == newColNum) {
 						if(isBlackBox(rowNum,colNum+1))
 							board.put(new position(rowNum,colNum+1), new emptySquare("##"));
@@ -214,60 +219,82 @@ public class chess {
 				}
 				
 				//Check Castling
-				if(isCastling(inputArr[0], inputArr[1], whiteMove)) {
+				if(isCastling(inputArr[0], inputArr[1], whiteMove, numTurns)) {
 					int newColNum = getColInt(inputArr[1].charAt(0));
 					int rowNum = Integer.parseInt(String.valueOf(inputArr[0].charAt(1)));
 					//move rook(on right or on left)
-					if(newColNum + 1 == 8) {
-						board.put(new position(rowNum, 6), board.get(new position(rowNum,8)));
-						board.get(new position(rowNum, 6)).setMovement(board.get(new position(rowNum, 6)).getMovement()+1);
-						if(isBlackBox(rowNum,8))
-							board.put(new position(rowNum,8), new emptySquare("##"));
-						else
-							board.put(new position(rowNum,8), new emptySquare("  "));
-					}
-					else {
-						board.put(new position(rowNum, 4), board.get(new position(rowNum,1)));
-						board.get(new position(rowNum, 4)).setMovement(board.get(new position(rowNum, 4)).getMovement()+1);
+					if(newColNum - 1 == 1) {
+						board.put(new position(rowNum, 3), board.get(new position(rowNum,1)));
+						board.get(new position(rowNum, 3)).setMovement((board.get(new position(rowNum, 3)).getMovement())+1);
 						if(isBlackBox(rowNum,1))
 							board.put(new position(rowNum,1), new emptySquare("##"));
 						else
 							board.put(new position(rowNum,1), new emptySquare("  "));
 					}
+					else {
+						board.put(new position(rowNum, 5), board.get(new position(rowNum,8)));
+						board.get(new position(rowNum, 5)).setMovement((board.get(new position(rowNum, 5)).getMovement())+1);
+						if(isBlackBox(rowNum,8))
+							board.put(new position(rowNum,8), new emptySquare("##"));
+						else
+							board.put(new position(rowNum,8), new emptySquare("  "));
+					}
 				}
+				
+				//Move Position after all items have been checked(EXCEPT promotions)
+				board.put(toIntPosition(inputArr[1]), movingPiece);
+				if(isBlackBox(toIntPosition(inputArr[0]).getRow(),toIntPosition(inputArr[0]).getColumn()))
+					board.put(toIntPosition(inputArr[0]), new emptySquare("##"));
+				else
+					board.put(toIntPosition(inputArr[0]), new emptySquare("  "));
 				
 				//check promotion
 				if(isPromotion(inputArr[0], inputArr[1],whiteMove)) {
 					if(whiteMove) {
-						if(inputArr[2].charAt(1) == 'R') 
-							board.put(toIntPosition(inputArr[1]), new rook("wR"));
-						else if(inputArr[2].charAt(1) == 'N') 
-							board.put(toIntPosition(inputArr[1]), new knight("wN"));
-						else if(inputArr[2].charAt(1) == 'B') 
-							board.put(toIntPosition(inputArr[1]), new bishop("wB"));
+						if(inputArr.length>2) {
+							if(inputArr[2].charAt(0) == 'R') 
+								board.put(toIntPosition(inputArr[1]), new rook("wR"));
+							else if(inputArr[2].charAt(0) == 'N') 
+								board.put(toIntPosition(inputArr[1]), new knight("wN"));
+							else if(inputArr[2].charAt(0) == 'B') 
+								board.put(toIntPosition(inputArr[1]), new bishop("wB"));
+							else
+								board.put(toIntPosition(inputArr[1]), new queen("wQ"));
+						}
 						else
 							board.put(toIntPosition(inputArr[1]), new queen("wQ"));
 					}
 					else {
-						if(inputArr[2].charAt(1) == 'R') 
-							board.put(toIntPosition(inputArr[1]), new rook("bR"));
-						else if(inputArr[2].charAt(1) == 'N') 
-							board.put(toIntPosition(inputArr[1]), new knight("bN"));
-						else if(inputArr[2].charAt(1) == 'B') 
-							board.put(toIntPosition(inputArr[1]), new bishop("bB"));
+						if(inputArr.length>2) {
+							if(inputArr[2].charAt(0) == 'R') 
+								board.put(toIntPosition(inputArr[1]), new rook("bR"));
+							else if(inputArr[2].charAt(0) == 'N') 
+								board.put(toIntPosition(inputArr[1]), new knight("bN"));
+							else if(inputArr[2].charAt(0) == 'B') 
+								board.put(toIntPosition(inputArr[1]), new bishop("bB"));
+							else
+								board.put(toIntPosition(inputArr[1]), new queen("bQ"));
+						}
 						else
 							board.put(toIntPosition(inputArr[1]), new queen("bQ"));
 					}
 					//give same movement as pawn
 					board.get(toIntPosition(inputArr[1])).setMovement(movingPiece.getMovement());
 				}
+				
+				//Now that piece has moved, reset EnPassant(in case it was a pawn)!
+				board.get(toIntPosition(inputArr[1])).setEnPassant(-1);
 					
 				//it is now the other person's turn!
 				whiteMove = !whiteMove;
 				printBoard();
+				numTurns++;
+				
+				//check if EnPassant is possible in the current state for any pawn, until piece is moved again it will not be set to -1 again
+				checkEnPassant(whiteMove, numTurns);
 				
 				//check if there is a checkmate with current player now that old player has made a move
-				if(isCheckMate(kingPosition(whiteMove), whiteMove)) {
+				if(isCheckMate(kingPosition(whiteMove), whiteMove, numTurns)) {
 					System.out.println("Checkmate");
 					if(whiteMove) 
 						System.out.println("Black wins");
@@ -280,7 +307,7 @@ public class chess {
 				}
 			}
 			else{
-				System.out.println("Illegal move, try again\n");
+				System.out.println("Illegal move, try again10\n");
 				continue;
 			}		
 		}
@@ -291,23 +318,49 @@ public class chess {
 	private static boolean isPromotion(String currPos, String newPos, boolean isWhiteMove) {
 		
 		//calculate rowNumbers and column numbers
-		int rowNum = Integer.parseInt(String.valueOf(currPos.charAt(1)));
 		int newRowNum = Integer.parseInt(String.valueOf(newPos.charAt(1)));
-		int colNum = getColInt(currPos.charAt(0));
+		int newColNum = getColInt(newPos.charAt(0));
 		
 		if(isWhiteMove) {
-			if(board.get(new position(rowNum,colNum)).getType() == 'p' && newRowNum == 8)
+			if(board.get(new position(newRowNum,newColNum)).getType() == 'p' && newRowNum == 8)
 				return true;
 		}
 		else {
-			if(board.get(new position(rowNum,colNum)).getType() == 'p' && newRowNum == 1)
+			if(board.get(new position(newRowNum,newColNum)).getType() == 'p' && newRowNum == 1)
 				return true;
 		}
 		
 		return false;
 	}
 	
-	public static boolean isEnPassant(String currPos, String newPos, boolean isWhiteMove) {
+	private static void checkEnPassant(boolean isWhiteMove, int numTurn) {
+		piece pawnPieces;
+		
+		for (position pawnPiecePos: board.keySet()) {
+			pawnPieces = board.get(pawnPiecePos);
+			//find all pawn pieces
+			if(pawnPieces.getType() == 'p') {
+				//set all possible EnPassants to numberTurn that can currently do it, ONLY WORKS if set at -1(meaning it has not had the opportunity to do so!)
+				//if white turn
+				if(pawnPieces.getColor() == 'w' && isWhiteMove && (pawnPiecePos.getRow()+1)<=8) {
+					if((pawnPiecePos.getColumn()+1)<=8 && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()+1),(pawnPiecePos.getColumn()+1))).toStringPos(), isWhiteMove, -1))
+						pawnPieces.setEnPassant(numTurn);
+					else if((pawnPiecePos.getColumn()+1)>=1 && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()+1),(pawnPiecePos.getColumn()-1))).toStringPos(), isWhiteMove, -1))
+						pawnPieces.setEnPassant(numTurn);
+				}
+				//if black turn
+				else if(pawnPieces.getColor() == 'b' && !isWhiteMove && (pawnPiecePos.getRow()-1)>=1) {
+					if((pawnPiecePos.getColumn()+1)<=8 && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()-1),(pawnPiecePos.getColumn()+1))).toStringPos(), isWhiteMove, -1))
+						pawnPieces.setEnPassant(numTurn);
+					else if((pawnPiecePos.getColumn()+1)>=1 && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()-1),(pawnPiecePos.getColumn()-1))).toStringPos(), isWhiteMove, -1))
+						pawnPieces.setEnPassant(numTurn);
+				}
+			}
+			
+		}
+	}
+	
+	public static boolean isEnPassant(String currPos, String newPos, boolean isWhiteMove, int numTurn) {
 		
 		//calculate rowNumbers and column numbers
 		int rowNum = Integer.parseInt(String.valueOf(currPos.charAt(1)));
@@ -317,6 +370,10 @@ public class chess {
 		
 		//must be pawn!
 		if(board.get(toIntPosition(currPos)).getType() != 'p')
+			return false;
+		
+		//must be allowed to EnPassant
+		if(numTurn - board.get(toIntPosition(currPos)).getCanEnPassant() != 0)
 			return false;
 		
 		//EnPassant for white
@@ -335,7 +392,7 @@ public class chess {
 			else if(colNum - 1 == newColNum) {
 				String val = board.get(new position(rowNum,colNum-1)).getValue();
 				int moves = board.get(new position(rowNum,colNum-1)).getMovement();
-				if(val.equals("bp") && moves == 1) 
+				if(val.equals("bp") && moves == 1)
 					return true;
 			}
 		}
@@ -363,7 +420,7 @@ public class chess {
 		return false;
 	}
 	
-	public static boolean isCastling(String currPos, String newPos, boolean isWhiteMove) {
+	public static boolean isCastling(String currPos, String newPos, boolean isWhiteMove, int numMove) {
 		
 		//calculate rowNumbers and column numbers
 		int rowNum = Integer.parseInt(String.valueOf(currPos.charAt(1)));
@@ -377,33 +434,33 @@ public class chess {
 		if(board.get(new position(rowNum,colNum)).getMovement()!= 0)
 			return false;
 		//check if movement correct
-		if(newColNum!=3 && newColNum!= 7)
+		if(newColNum!=2 && newColNum!= 6)
 			return false;
 		
 		//check for white movement
 		if(isWhiteMove) {
 			
 			//check if moving to right or left
-			if(newColNum == 7) {
-				//check if rook has moved
-				if(board.get(new position(rowNum,8)).getMovement()!= 0)
-					return false;
-				//check if any piece in between is still there
-				if((!board.get(new position(rowNum,6)).getValue().equals("  ")) || (!board.get(new position(rowNum,7)).getValue().equals("##")))
-					return false;
-				//check if any movement would be through a check
-				if(isCheck(newPos, true) || isCheck(currPos, true) || isCheck("f1", true))
-					return false;
-			}
-			else if(newColNum == 3) {
+			if(newColNum == 2) {
 				//check if rook has moved
 				if(board.get(new position(rowNum,1)).getMovement()!= 0)
 					return false;
 				//check if any piece in between is still there
-				if((!board.get(new position(rowNum,4)).getValue().equals("  ")) || (!board.get(new position(rowNum,3)).getValue().equals("##")) || (!board.get(new position(rowNum,2)).getValue().equals("  ")))
+				if((!board.get(new position(rowNum,3)).getValue().equals("  ")) || (!board.get(new position(rowNum,2)).getValue().equals("##")))
 					return false;
 				//check if any movement would be through a check
-				if(isCheck(newPos, true) || isCheck(currPos, true) || isCheck("d1", true))
+				if(isCheck(newPos, true, numMove) || isCheck(currPos, true, numMove) || isCheck("f1", true, numMove))
+					return false;
+			}
+			else if(newColNum == 6) {
+				//check if rook has moved
+				if(board.get(new position(rowNum,8)).getMovement()!= 0)
+					return false;
+				//check if any piece in between is still there
+				if((!board.get(new position(rowNum,5)).getValue().equals("  ")) || (!board.get(new position(rowNum,6)).getValue().equals("##")) || (!board.get(new position(rowNum,7)).getValue().equals("  ")))
+					return false;
+				//check if any movement would be through a check
+				if(isCheck(newPos, true, numMove) || isCheck(currPos, true, numMove) || isCheck("d1", true, numMove))
 					return false;
 			}
 		}
@@ -412,26 +469,26 @@ public class chess {
 		else {
 			
 			//check if moving to right or left
-			if(newColNum == 7) {
-				//check if rook has moved
-				if(board.get(new position(rowNum,8)).getMovement()!= 0)
-					return false;
-				//check if any piece in between is still there
-				if((!board.get(new position(rowNum,6)).getValue().equals("##")) || (!board.get(new position(rowNum,7)).getValue().equals("  ")))
-					return false;
-				//check if any movement would be through a check
-				if(isCheck(newPos, false) || isCheck(currPos, false) || isCheck("f8", false))
-					return false;
-			}
-			else if(newColNum == 3) {
+			if(newColNum == 2) {
 				//check if rook has moved
 				if(board.get(new position(rowNum,1)).getMovement()!= 0)
 					return false;
 				//check if any piece in between is still there
-				if((!board.get(new position(rowNum,4)).getValue().equals("##")) || (!board.get(new position(rowNum,3)).getValue().equals("  ")) || (!board.get(new position(rowNum,2)).getValue().equals("##")))
+				if((!board.get(new position(rowNum,3)).getValue().equals("##")) || (!board.get(new position(rowNum,2)).getValue().equals("  ")))
 					return false;
 				//check if any movement would be through a check
-				if(isCheck(newPos, false) || isCheck(currPos, false) || isCheck("d8", false))
+				if(isCheck(newPos, false, numMove) || isCheck(currPos, false, numMove) || isCheck("f8", false, numMove))
+					return false;
+			}
+			else if(newColNum == 6) {
+				//check if rook has moved
+				if(board.get(new position(rowNum,8)).getMovement()!= 0)
+					return false;
+				//check if any piece in between is still there
+				if((!board.get(new position(rowNum,5)).getValue().equals("##")) || (!board.get(new position(rowNum,6)).getValue().equals("  ")) || (!board.get(new position(rowNum,7)).getValue().equals("##")))
+					return false;
+				//check if any movement would be through a check
+				if(isCheck(newPos, false, numMove) || isCheck(currPos, false, numMove) || isCheck("d8", false, numMove))
 					return false;
 			}
 		}
@@ -439,7 +496,7 @@ public class chess {
 		return true;
 	}
 	
-	private static boolean isCheck(String positionK, boolean isWhiteMove) {
+	private static boolean isCheck(String positionK, boolean isWhiteMove, int numTurn) {
 		piece oppPieces = null;
 		
 		//check if black pieces can attack white king
@@ -447,7 +504,7 @@ public class chess {
 			//for all other black pieces, test if any of them can move to given position
 			for (position opponentPiecePos: board.keySet()) {
 				oppPieces = board.get(opponentPiecePos);
-				if(oppPieces.getValue().charAt(0)=='b' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK),isWhiteMove))
+				if(oppPieces.getValue().charAt(0)=='b' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK),isWhiteMove, numTurn))
 					return true;
 			}
 		}
@@ -457,7 +514,7 @@ public class chess {
 			//for all other white pieces, test if any of them can move to given position
 			for (position opponentPiecePos: board.keySet()) {
 				oppPieces = board.get(opponentPiecePos);
-				if(oppPieces.getValue().charAt(0)=='w' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK),isWhiteMove))
+				if(oppPieces.getValue().charAt(0)=='w' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK),isWhiteMove, numTurn))
 					return true;
 			}
 		}
@@ -465,48 +522,48 @@ public class chess {
 		return false;
 	}
 	
-	private static boolean isCheckMate(String positionK, boolean isWhiteMove) {
+	private static boolean isCheckMate(String positionK, boolean isWhiteMove, int numMove) {
 		
 		position kPos = toIntPosition(positionK);
 		
-		if(kPos.getColumn()+1 <=8) {
+		if((kPos.getColumn()+1) <=8) {
 			String testPosition = getColLetter(kPos.getColumn()+1)+Integer.toString(kPos.getRow());
-			if(!isCheck(testPosition, isWhiteMove))
+			if(!isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
-		if(kPos.getColumn()+1 <= 8 && kPos.getRow() +1 <=8) {
+		if((kPos.getColumn()+1) <= 8 && (kPos.getRow() +1) <=8) {
 			String testPosition = getColLetter(kPos.getColumn()+1)+Integer.toString(kPos.getRow()+1);
-			if(!isCheck(testPosition, isWhiteMove))
+			if(!isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
-		if(kPos.getColumn()+1 <= 8 && kPos.getRow() -1 >=1) {
+		if((kPos.getColumn()+1) <= 8 && (kPos.getRow() -1) >=1) {
 			String testPosition = getColLetter(kPos.getColumn()+1)+Integer.toString(kPos.getRow()-1);
-			if(!isCheck(testPosition, isWhiteMove))
+			if(!isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
-		if(kPos.getColumn()-1 >=1) {
+		if((kPos.getColumn()-1) >=1) {
 			String testPosition = getColLetter(kPos.getColumn()-1)+Integer.toString(kPos.getRow());
-			if(!isCheck(testPosition, isWhiteMove))
+			if(!isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
-		if(kPos.getColumn()-1 >= 1 && kPos.getRow() +1 <=8) {
+		if((kPos.getColumn()-1) >= 1 && (kPos.getRow() +1) <=8) {
 			String testPosition = getColLetter(kPos.getColumn()-1)+Integer.toString(kPos.getRow()+1);
-			if(!isCheck(testPosition, isWhiteMove))
+			if(!isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
-		if(kPos.getColumn()-1 >= 1 && kPos.getRow() -1 >=1) {
+		if((kPos.getColumn()-1) >= 1 && (kPos.getRow() -1) >=1) {
 			String testPosition = getColLetter(kPos.getColumn()-1)+Integer.toString(kPos.getRow()-1);
-			if(!isCheck(testPosition, isWhiteMove))
+			if(!isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
-		if(kPos.getRow()+1 <= 8) {
+		if((kPos.getRow()+1) <= 8) {
 			String testPosition = getColLetter(kPos.getColumn())+Integer.toString(kPos.getRow()+1);
-			if(!isCheck(testPosition, isWhiteMove))
+			if(!isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
-		if(kPos.getRow()-1 >= 1) {
+		if((kPos.getRow()-1) >= 1) {
 			String testPosition = getColLetter(kPos.getColumn())+Integer.toString(kPos.getRow()-1);
-			if(!isCheck(testPosition, isWhiteMove))
+			if(!isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
 		
