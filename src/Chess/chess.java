@@ -1,12 +1,23 @@
 package Chess;
 
+/**
+ * @author Dhrishti Hazari
+ * @author Jayson Pitta
+ */
+
+
 import java.util.*;
 import Pieces.*;
 
 public class chess {
 	
+	//overall HashMap
 	public static HashMap<position,piece> board= new HashMap<position,piece>(70);
 	
+	/**
+	 * setUpBoard is a void Method that sets up original board
+	 * no inputs or return
+	 */
 	public static void setUpBoard() {
 		
 		for(int i = 1; i<= 8; i++) {
@@ -51,6 +62,10 @@ public class chess {
 		}
 	}
 	
+	/**
+	 * printBoard is a void method to print out board
+	 * no inputs or return
+	 */
 	public static void printBoard() {
 		for(int i = 8; i>=1; i--) {
 			for(int j=8; j>=1; j--) {
@@ -63,29 +78,38 @@ public class chess {
 		System.out.println();
 	}
 	
+	/**
+	 * The main function does all of the calls to other methods to test for resigns, draws, and moves of the specific pieces
+	 * 
+	 * @param args is where all the inputs come through
+	 */
 	public static void main(String[] args) {
 		setUpBoard();
 		printBoard();
 		
+		//input String names
 		String input;
 		String[] inputArr = new String[3];
 		
+		//boolean values + int that is needed for EnPassant
 		boolean whiteMove = true;
 		boolean askDraw = false;
+		boolean continueGame = true;
 		int numTurns = 0;
 		
 		Scanner gamePlay = new Scanner(System.in);
 		
-		boolean continueGame = true;
-		
+		//White the game is still on
 		while(continueGame) {
 			
+			//print out appropriate move
 			if(whiteMove) 
 				System.out.print("White's Move: ");
 			else
 				System.out.print("Black's Move: ");
 			
 			input = gamePlay.nextLine();
+			System.out.println("");
 			
 			//check to see if input is valid
 			if((!input.toLowerCase().equals("resign") && !input.toLowerCase().equals("draw")) && (input.length() > 11 || input.charAt(2)!=' '|| !Character.isLetter(input.charAt(0)) || !Character.isLetter(input.charAt(3)) || Character.isLetter(input.charAt(1)) || Character.isLetter(input.charAt(4)))) {
@@ -145,13 +169,6 @@ public class chess {
 				System.out.println("Illegal move, try again6\n");
 				continue;
 			}
-			//check if trying to take over same color
-			if(!(chess.board.get(toIntPosition(inputArr[1])) instanceof emptySquare)) {
-				if(chess.board.get(toIntPosition(inputArr[0])).getColor() == chess.board.get(toIntPosition(inputArr[1])).getColor()) {
-					System.out.println("Illegal move, try again7\n");
-					continue;
-				}
-			}
 			
 			//check if third input is valid
 			if(inputArr.length>2) {
@@ -195,6 +212,7 @@ public class chess {
 				}
 				
 				//reverse
+				movingPiece.setMovement(movingPiece.getMovement()-1);
 				board.put(toIntPosition(inputArr[0]), movingPiece);
 				board.put(toIntPosition(inputArr[1]), takeOverPiece);
 				
@@ -242,6 +260,7 @@ public class chess {
 				}
 				
 				//Move Position after all items have been checked(EXCEPT promotions)
+				movingPiece.setMovement(movingPiece.getMovement()+1);
 				board.put(toIntPosition(inputArr[1]), movingPiece);
 				if(isBlackBox(toIntPosition(inputArr[0]).getRow(),toIntPosition(inputArr[0]).getColumn()))
 					board.put(toIntPosition(inputArr[0]), new emptySquare("##"));
@@ -294,33 +313,47 @@ public class chess {
 				checkEnPassant(whiteMove, numTurns);
 				
 				//check if there is a checkmate with current player now that old player has made a move
-				if(isCheckMate(kingPosition(whiteMove), whiteMove, numTurns)) {
-					System.out.println("Checkmate");
-					if(whiteMove) 
-						System.out.println("Black wins");
-					else
-						System.out.println("White wins");
-					
-					gamePlay.close();
-					continueGame = false;
-					return;
+				if(isCheck(kingPosition(whiteMove),whiteMove, numTurns)) {
+					if(isCheckMate(kingPosition(whiteMove), whiteMove, numTurns)) {
+						System.out.println("Checkmate");
+						if(whiteMove) 
+							System.out.println("Black wins");
+						else
+							System.out.println("White wins");
+						
+						gamePlay.close();
+						continueGame = false;
+						return;
+					}
 				}
 			}
+			//if move is not valid it is illegal
 			else{
 				System.out.println("Illegal move, try again10\n");
 				continue;
 			}		
 		}
 		
+		//close scanner
 		gamePlay.close();
 	}
 	
+	/**
+	 * isPromotion check to see if a pawn has reached the other side of the board and is able to get a promotion
+	 * 
+	 * @param currPos is the current position of the pawn
+	 * @param newPos is the position it wants to move to
+	 * @param isWhiteMove is a boolean that tells if its white's turn or black's turn
+	 * 
+	 * @return true if pawn can get a promotion, false otherwise
+	 */
 	private static boolean isPromotion(String currPos, String newPos, boolean isWhiteMove) {
 		
 		//calculate rowNumbers and column numbers
 		int newRowNum = Integer.parseInt(String.valueOf(newPos.charAt(1)));
 		int newColNum = getColInt(newPos.charAt(0));
 		
+		//must be on opposite end of board
 		if(isWhiteMove) {
 			if(board.get(new position(newRowNum,newColNum)).getType() == 'p' && newRowNum == 8)
 				return true;
@@ -333,6 +366,15 @@ public class chess {
 		return false;
 	}
 	
+	/**
+	 * checkEnPassant checks to see if any pawn is eligible to do an enPassant. 
+	 * If so, it's canEnPassant field is assigned the current round number, so the program knows when the pawn is allowed to enPassant(Only in the current round!)
+	 * 
+	 * @param isWhiteMove is a boolean that tells if its white's turn or black's turn
+	 * @param numTurn tells us how many rounds it has been
+	 * 
+	 * It has no return type
+	 */
 	private static void checkEnPassant(boolean isWhiteMove, int numTurn) {
 		piece pawnPieces;
 		
@@ -360,6 +402,16 @@ public class chess {
 		}
 	}
 	
+	/**
+	 * isEnPassant tells if a pawn is eligible to perform an enPassant or not
+	 * 
+	 * @param currPos is the current position of the piece
+	 * @param newPos is the position the piece wants to move to
+	 * @param isWhiteMove tells us whose turn it is(if true, white; if false, black)
+	 * @param numTurn tells us how many rounds it has been
+	 * 
+	 * @return a boolean, true if EnPassant can be done, false otherwise
+	 */
 	public static boolean isEnPassant(String currPos, String newPos, boolean isWhiteMove, int numTurn) {
 		
 		//calculate rowNumbers and column numbers
@@ -372,7 +424,7 @@ public class chess {
 		if(board.get(toIntPosition(currPos)).getType() != 'p')
 			return false;
 		
-		//must be allowed to EnPassant
+		//must be allowed to EnPassant(Can only do so in very next turn!)
 		if(numTurn - board.get(toIntPosition(currPos)).getCanEnPassant() != 0)
 			return false;
 		
@@ -420,6 +472,16 @@ public class chess {
 		return false;
 	}
 	
+	/**
+	 * isCastling tells us if king is eligible to do a castling move
+	 * 
+	 * @param currPos is the current position of the piece
+	 * @param newPos is the position the piece wants to move to
+	 * @param isWhiteMove tells us whose turn it is(if true, white; if false, black)
+	 * @param numMove tells us how many rounds it has been
+	 * 
+	 * @return a boolean, true if Castling can be done, false otherwise
+	 */
 	public static boolean isCastling(String currPos, String newPos, boolean isWhiteMove, int numMove) {
 		
 		//calculate rowNumbers and column numbers
@@ -430,9 +492,11 @@ public class chess {
 		//check if it is a king
 		if(!(board.get(new position(rowNum,colNum)) instanceof king))
 			return false;
+		
 		//Check if king has moved
 		if(board.get(new position(rowNum,colNum)).getMovement()!= 0)
 			return false;
+		
 		//check if movement correct
 		if(newColNum!=2 && newColNum!= 6)
 			return false;
@@ -442,8 +506,8 @@ public class chess {
 			
 			//check if moving to right or left
 			if(newColNum == 2) {
-				//check if rook has moved
-				if(board.get(new position(rowNum,1)).getMovement()!= 0)
+				//check if rook has moved and must be rook
+				if(board.get(new position(rowNum,1)).getMovement()!= 0 || board.get(new position(rowNum,1)).getType()!= 'R')
 					return false;
 				//check if any piece in between is still there
 				if((!board.get(new position(rowNum,3)).getValue().equals("  ")) || (!board.get(new position(rowNum,2)).getValue().equals("##")))
@@ -453,8 +517,8 @@ public class chess {
 					return false;
 			}
 			else if(newColNum == 6) {
-				//check if rook has moved
-				if(board.get(new position(rowNum,8)).getMovement()!= 0)
+				//check if rook has moved and must be rook
+				if(board.get(new position(rowNum,8)).getMovement()!= 0 || board.get(new position(rowNum,8)).getType()!= 'R')
 					return false;
 				//check if any piece in between is still there
 				if((!board.get(new position(rowNum,5)).getValue().equals("  ")) || (!board.get(new position(rowNum,6)).getValue().equals("##")) || (!board.get(new position(rowNum,7)).getValue().equals("  ")))
@@ -470,8 +534,8 @@ public class chess {
 			
 			//check if moving to right or left
 			if(newColNum == 2) {
-				//check if rook has moved
-				if(board.get(new position(rowNum,1)).getMovement()!= 0)
+				//check if rook has moved and must be rook
+				if(board.get(new position(rowNum,1)).getMovement()!= 0 || board.get(new position(rowNum,1)).getType()!= 'R')
 					return false;
 				//check if any piece in between is still there
 				if((!board.get(new position(rowNum,3)).getValue().equals("##")) || (!board.get(new position(rowNum,2)).getValue().equals("  ")))
@@ -481,8 +545,8 @@ public class chess {
 					return false;
 			}
 			else if(newColNum == 6) {
-				//check if rook has moved
-				if(board.get(new position(rowNum,8)).getMovement()!= 0)
+				//check if rook has moved and must be rook
+				if(board.get(new position(rowNum,8)).getMovement()!= 0  || board.get(new position(rowNum,8)).getType()!= 'R')
 					return false;
 				//check if any piece in between is still there
 				if((!board.get(new position(rowNum,5)).getValue().equals("##")) || (!board.get(new position(rowNum,6)).getValue().equals("  ")) || (!board.get(new position(rowNum,7)).getValue().equals("##")))
@@ -496,6 +560,15 @@ public class chess {
 		return true;
 	}
 	
+	/**
+	 * isCheck is a function that tells us if the king(for white OR black, whoever turn it is) is in check/will be in check if moved to positionK)
+	 * 
+	 * @param positionK gives us the possible String position of the king
+	 * @param isWhite tells us whose turn it is(if true, white; if false, black)
+	 * @param numTurn tells us how many rounds it has been
+	 * 
+	 * @return a boolean, true if the king in positionk will be in check, false otherwise
+	 */
 	private static boolean isCheck(String positionK, boolean isWhiteMove, int numTurn) {
 		piece oppPieces = null;
 		
@@ -522,54 +595,134 @@ public class chess {
 		return false;
 	}
 	
+	/**
+	 * isCheckMate tells is if the king(white or black depending on whose turn it is) is in checkmate by testing all possible movements of the king to see if a check results for all possible movements
+	 * 
+	 * @param positionK gives us the String position of the king
+	 * @param isWhiteMove tells us whose turn it is(if true, white; if false, black)
+	 * @param numMove tells us how many rounds it has been
+	 * 
+	 * @return a boolean, true if the king in positionk will be in checkmate, false otherwise
+	 */
 	private static boolean isCheckMate(String positionK, boolean isWhiteMove, int numMove) {
 		
 		position kPos = toIntPosition(positionK);
 		
 		if((kPos.getColumn()+1) <=8) {
 			String testPosition = getColLetter(kPos.getColumn()+1)+Integer.toString(kPos.getRow());
-			if(!isCheck(testPosition, isWhiteMove, numMove))
+			//Is moving to this position allowed for the king
+			position testPos = toIntPosition(testPosition);
+			boolean canMove = false;
+			if(isWhiteMove && board.get(testPos).getColor() != 'w')
+				canMove = true;
+			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
+				canMove = true;
+			
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
 		if((kPos.getColumn()+1) <= 8 && (kPos.getRow() +1) <=8) {
 			String testPosition = getColLetter(kPos.getColumn()+1)+Integer.toString(kPos.getRow()+1);
-			if(!isCheck(testPosition, isWhiteMove, numMove))
+			//Is moving to this position allowed for the king
+			position testPos = toIntPosition(testPosition);
+			boolean canMove = false;
+			if(isWhiteMove && board.get(testPos).getColor() != 'w')
+				canMove = true;
+			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
+				canMove = true;
+			
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
 		if((kPos.getColumn()+1) <= 8 && (kPos.getRow() -1) >=1) {
 			String testPosition = getColLetter(kPos.getColumn()+1)+Integer.toString(kPos.getRow()-1);
-			if(!isCheck(testPosition, isWhiteMove, numMove))
+			//Is moving to this position allowed for the king
+			position testPos = toIntPosition(testPosition);
+			boolean canMove = false;
+			if(isWhiteMove && board.get(testPos).getColor() != 'w')
+				canMove = true;
+			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
+				canMove = true;
+			
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
 		if((kPos.getColumn()-1) >=1) {
 			String testPosition = getColLetter(kPos.getColumn()-1)+Integer.toString(kPos.getRow());
-			if(!isCheck(testPosition, isWhiteMove, numMove))
+			//Is moving to this position allowed for the king
+			position testPos = toIntPosition(testPosition);
+			boolean canMove = false;
+			if(isWhiteMove && board.get(testPos).getColor() != 'w')
+				canMove = true;
+			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
+				canMove = true;
+			
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
 		if((kPos.getColumn()-1) >= 1 && (kPos.getRow() +1) <=8) {
 			String testPosition = getColLetter(kPos.getColumn()-1)+Integer.toString(kPos.getRow()+1);
-			if(!isCheck(testPosition, isWhiteMove, numMove))
+			//Is moving to this position allowed for the king
+			position testPos = toIntPosition(testPosition);
+			boolean canMove = false;
+			if(isWhiteMove && board.get(testPos).getColor() != 'w')
+				canMove = true;
+			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
+				canMove = true;
+			
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
 		if((kPos.getColumn()-1) >= 1 && (kPos.getRow() -1) >=1) {
 			String testPosition = getColLetter(kPos.getColumn()-1)+Integer.toString(kPos.getRow()-1);
-			if(!isCheck(testPosition, isWhiteMove, numMove))
+			//Is moving to this position allowed for the king
+			position testPos = toIntPosition(testPosition);
+			boolean canMove = false;
+			if(isWhiteMove && board.get(testPos).getColor() != 'w')
+				canMove = true;
+			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
+				canMove = true;
+			
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
 		if((kPos.getRow()+1) <= 8) {
 			String testPosition = getColLetter(kPos.getColumn())+Integer.toString(kPos.getRow()+1);
-			if(!isCheck(testPosition, isWhiteMove, numMove))
+			//Is moving to this position allowed for the king
+			position testPos = toIntPosition(testPosition);
+			boolean canMove = false;
+			if(isWhiteMove && board.get(testPos).getColor() != 'w')
+				canMove = true;
+			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
+				canMove = true;
+			
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
 		if((kPos.getRow()-1) >= 1) {
 			String testPosition = getColLetter(kPos.getColumn())+Integer.toString(kPos.getRow()-1);
-			if(!isCheck(testPosition, isWhiteMove, numMove))
+			//Is moving to this position allowed for the king
+			position testPos = toIntPosition(testPosition);
+			boolean canMove = false;
+			if(isWhiteMove && board.get(testPos).getColor() != 'w')
+				canMove = true;
+			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
+				canMove = true;
+			
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
 				return false;
 		}
 		
 		return true;
 	}
 	
+	/**
+	 * kingPosition is a method to find the king of the specified color
+	 * 
+	 * @param isWhite tells us whose king we are searching for(if true, white; if false, black)
+	 * 
+	 * @return a string with the position of the king of the given color
+	 */
 	private static String kingPosition(boolean isWhite) {
 		piece oppPieces = null;
 		String retVal = "";
@@ -577,10 +730,12 @@ public class chess {
 		//Find King
 		for (position opponentPiecePos: board.keySet()) {
 			oppPieces = board.get(opponentPiecePos);
+			//if white
 			if(isWhite) {
 				if(oppPieces.getValue() == "wK")
 					retVal = getColLetter(opponentPiecePos.getColumn()) + Integer.toString(opponentPiecePos.getRow());
 			}
+			//if black
 			else {
 				if(oppPieces.getValue() == "bK")
 					retVal = getColLetter(opponentPiecePos.getColumn()) + Integer.toString(opponentPiecePos.getRow());
@@ -590,12 +745,27 @@ public class chess {
 		return retVal;
 	}
 	
+	/**
+	 * isBlackBox tells us if the current box would be black or white if it were an emptySquare
+	 * 
+	 * @param row gives is the row number
+	 * @param col gives is the column number
+	 * 
+	 * @return true if it is a black box, false otherwise
+	 */
 	private static boolean isBlackBox(int row, int col) {
 		if(((row%2 == 1) && (col%2 == 1)) || ((row%2 == 0) && (col%2 == 0)))
 			return false;
 		return true;
 	}
 	
+	/**
+	 * getColInt is to find the corresponding integer to letter column field
+	 * 
+	 * @param col is the character of the column
+	 * 
+	 * @return an integer that corresponds with the letter of the column
+	 */
 	private static int getColInt(char col) {
 
 		if(col == 'a')
@@ -615,6 +785,13 @@ public class chess {
 		return 1;
 	}
 	
+	/**
+	 * getColLetter is to find the corresponding letter to the integer column field
+	 * 
+	 * @param colNum is the character of the column
+	 * 
+	 * @return a char that corresponds with the given integer of the column
+	 */
 	private static char getColLetter(int colNum) {
 		if(colNum == 8)
 			return 'a';
@@ -633,6 +810,13 @@ public class chess {
 		return 'h';
 	}
 	
+	/**
+	 * toIntPosition gives the corresponding position object to the string location
+	 * 
+	 * @param loc is the string position
+	 * 
+	 * @return a position object that corresponds to the given string position
+	 */
 	private static position toIntPosition(String loc) {
 		return (new position(Integer.parseInt(String.valueOf(loc.charAt(1))), getColInt(loc.charAt(0))));
 	}
