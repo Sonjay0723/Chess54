@@ -126,7 +126,7 @@ public class chess {
 				continue;
 			}
 			
-			//check if attempting to mpve empty square
+			//check if attempting to move empty square
 			if(chess.board.get(toIntPosition(inputArr[0])) instanceof emptySquare) {
 				System.out.println("Illegal move, try again3\n");
 				continue;
@@ -163,7 +163,7 @@ public class chess {
 			
 			//check if move it valid, then do all other steps!
 			piece currPiece = board.get(toIntPosition(inputArr[0]));
-			if(currPiece.validMove(toIntPosition(inputArr[0]), toIntPosition(inputArr[1])) || isCastling(inputArr[0], inputArr[1], whiteMove)) {
+			if(currPiece.validMove(toIntPosition(inputArr[0]), toIntPosition(inputArr[1]), whiteMove) || isCastling(inputArr[0], inputArr[1], whiteMove)) {
 				
 				//check if draw is being asked for
 				if(inputArr.length>2) {
@@ -304,7 +304,7 @@ public class chess {
 		return false;
 	}
 	
-	private static boolean isEnPassant(String currPos, String newPos, boolean isWhiteMove) {
+	public static boolean isEnPassant(String currPos, String newPos, boolean isWhiteMove) {
 		
 		//calculate rowNumbers and column numbers
 		int rowNum = Integer.parseInt(String.valueOf(currPos.charAt(1)));
@@ -360,7 +360,7 @@ public class chess {
 		return false;
 	}
 	
-	private static boolean isCastling(String currPos, String newPos, boolean isWhiteMove) {
+	public static boolean isCastling(String currPos, String newPos, boolean isWhiteMove) {
 		
 		//calculate rowNumbers and column numbers
 		int rowNum = Integer.parseInt(String.valueOf(currPos.charAt(1)));

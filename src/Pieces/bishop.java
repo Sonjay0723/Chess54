@@ -10,7 +10,7 @@ public class bishop extends piece{
 	}
 	
 	@Override
-	public boolean validMove(position currPos, position newPos) {
+	public boolean validMove(position currPos, position newPos, boolean isWhite) {
 		//calculate rowNumbers and column numbers
 		int rowNum = currPos.getRow();
 		int newRowNum = newPos.getRow();
@@ -18,7 +18,7 @@ public class bishop extends piece{
 		int newColNum = newPos.getColumn();
 		
 		//check if move valid(diagonal only, cannot move from old position->same old position)
-		if(Math.abs(rowNum - newRowNum) == Math.abs (colNum - newColNum) && !(new position(rowNum,colNum).equals(new position(newRowNum,newColNum))))
+		if(Math.abs(rowNum - newRowNum) == Math.abs (colNum - newColNum) && !currPos.equals(newPos))
 				return true;
 		
 		return false;

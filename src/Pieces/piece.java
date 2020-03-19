@@ -3,6 +3,8 @@ package Pieces;
 import Chess.chess;
 import Chess.position;
 
+import java.lang.*;
+
 public abstract class piece {
 	
 	String value;
@@ -33,8 +35,12 @@ public abstract class piece {
 		this.priorMove = moved;
 	}
 	
-	public boolean validMove(position oldPos, position newPos) {
+	public boolean validMove(position oldPos, position newPos, boolean isWhite) {
 		return true;
+	}
+	
+	public String toStringPos(position changePos) {
+		return (Integer.toString(changePos.getColumn()) + Integer.toString(changePos.getRow()));
 	}
 	
 	public int getColInt(char col) {
