@@ -113,7 +113,7 @@ public class chess {
 			
 			//check to see if input is valid
 			if((!input.toLowerCase().equals("resign") && !input.toLowerCase().equals("draw")) && (input.length() > 11 || input.charAt(2)!=' '|| !Character.isLetter(input.charAt(0)) || !Character.isLetter(input.charAt(3)) || Character.isLetter(input.charAt(1)) || Character.isLetter(input.charAt(4)))) {
-				System.out.println("Illegal move, try again1\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			
@@ -146,34 +146,34 @@ public class chess {
 			
 			//check if input is valid
 			if(inputArr.length<2) {
-				System.out.println("Illegal move, try again2\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			
 			//check if attempting to move empty square
 			if(chess.board.get(toIntPosition(inputArr[0])) instanceof emptySquare) {
-				System.out.println("Illegal move, try again3\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			//check if out of bounds movement
 			if(toIntPosition(inputArr[1]).getColumn() > 8 || toIntPosition(inputArr[1]).getColumn() < 1 || toIntPosition(inputArr[1]).getRow() < 1 || toIntPosition(inputArr[1]).getRow() > 8 || toIntPosition(inputArr[0]).getColumn() > 8 || toIntPosition(inputArr[0]).getColumn() < 1 || toIntPosition(inputArr[0]).getRow() < 1 || toIntPosition(inputArr[0]).getRow() > 8 ) {
-				System.out.println("Illegal move, try again4\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			//check if player is attempting to move other player's piece
 			if(whiteMove && (board.get(toIntPosition(inputArr[0])).getColor()=='b')){
-				System.out.println("Illegal move, try again5\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			else if(!whiteMove && (board.get(toIntPosition(inputArr[0])).getColor()=='w')){
-				System.out.println("Illegal move, try again6\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}
 			
 			//check if third input is valid
 			if(inputArr.length>2) {
 				if(!inputArr[2].toLowerCase().equals("draw?") && inputArr[2].length()>1) {
-					System.out.println("Illegal move, try again8\n");
+					System.out.println("Illegal move, try again\n");
 					continue;
 				}
 			}
@@ -203,7 +203,7 @@ public class chess {
 				//If movement results in getting into check
 				String positionK = kingPosition(whiteMove);
 				if(isCheck(positionK, whiteMove, numTurns)) {
-					System.out.println("Illegal move, try again9\n");
+					System.out.println("Illegal move, try again\n");
 					//go back to OG position
 					movingPiece.setMovement(movingPiece.getMovement()-1);
 					board.put(toIntPosition(inputArr[0]), movingPiece);
@@ -315,7 +315,6 @@ public class chess {
 				//check if there is a checkmate with current player now that old player has made a move
 				if(isCheck(kingPosition(whiteMove),whiteMove, numTurns)) {
 					if(isCheckMate(kingPosition(whiteMove), whiteMove, numTurns)) {
-						System.out.println("Checkmate");
 						if(whiteMove) 
 							System.out.println("Black wins");
 						else
@@ -329,7 +328,7 @@ public class chess {
 			}
 			//if move is not valid it is illegal
 			else{
-				System.out.println("Illegal move, try again10\n");
+				System.out.println("Illegal move, try again\n");
 				continue;
 			}		
 		}
@@ -577,7 +576,7 @@ public class chess {
 			//for all other black pieces, test if any of them can move to given position
 			for (position opponentPiecePos: board.keySet()) {
 				oppPieces = board.get(opponentPiecePos);
-				if(oppPieces.getValue().charAt(0)=='b' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK),isWhiteMove, numTurn))
+				if(oppPieces.getColor()=='b' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK),isWhiteMove, numTurn))
 					return true;
 			}
 		}
@@ -587,7 +586,7 @@ public class chess {
 			//for all other white pieces, test if any of them can move to given position
 			for (position opponentPiecePos: board.keySet()) {
 				oppPieces = board.get(opponentPiecePos);
-				if(oppPieces.getValue().charAt(0)=='w' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK),isWhiteMove, numTurn))
+				if(oppPieces.getColor()=='w' && oppPieces.validMove(opponentPiecePos, toIntPosition(positionK),isWhiteMove, numTurn))
 					return true;
 			}
 		}
@@ -606,7 +605,13 @@ public class chess {
 	 */
 	private static boolean isCheckMate(String positionK, boolean isWhiteMove, int numMove) {
 		
+		//remove current king
 		position kPos = toIntPosition(positionK);
+		piece currKing = board.get(kPos);
+		if(isBlackBox(kPos.getRow(),kPos.getColumn()))
+			board.put(kPos, new emptySquare("##"));
+		else
+			board.put(kPos, new emptySquare("  "));
 		
 		if((kPos.getColumn()+1) <=8) {
 			String testPosition = getColLetter(kPos.getColumn()+1)+Integer.toString(kPos.getRow());
@@ -618,8 +623,19 @@ public class chess {
 			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
 				canMove = true;
 			
-			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
+			//place king in new position for testing
+			piece tempMovePiece = board.get(testPos);
+			if(canMove)
+				board.put(testPos, currKing);
+			
+			//check if now there is still a check
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove)) {
+				board.put(kPos, currKing);
+				board.put(testPos, tempMovePiece);
 				return false;
+			}
+			//otherwise place king back where it came from
+			board.put(testPos, tempMovePiece);
 		}
 		if((kPos.getColumn()+1) <= 8 && (kPos.getRow() +1) <=8) {
 			String testPosition = getColLetter(kPos.getColumn()+1)+Integer.toString(kPos.getRow()+1);
@@ -631,8 +647,19 @@ public class chess {
 			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
 				canMove = true;
 			
-			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
+			//place king in new position for testing
+			piece tempMovePiece = board.get(testPos);
+			if(canMove)
+				board.put(testPos, currKing);
+			
+			//check if now there is still a check
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove)) {
+				board.put(kPos, currKing);
+				board.put(testPos, tempMovePiece);
 				return false;
+			}
+			//otherwise place king back where it came from
+			board.put(testPos, tempMovePiece);
 		}
 		if((kPos.getColumn()+1) <= 8 && (kPos.getRow() -1) >=1) {
 			String testPosition = getColLetter(kPos.getColumn()+1)+Integer.toString(kPos.getRow()-1);
@@ -644,8 +671,19 @@ public class chess {
 			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
 				canMove = true;
 			
-			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
+			//place king in new position for testing
+			piece tempMovePiece = board.get(testPos);
+			if(canMove)
+				board.put(testPos, currKing);
+			
+			//check if now there is still a check
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove)) {
+				board.put(kPos, currKing);
+				board.put(testPos, tempMovePiece);
 				return false;
+			}
+			//otherwise place king back where it came from
+			board.put(testPos, tempMovePiece);
 		}
 		if((kPos.getColumn()-1) >=1) {
 			String testPosition = getColLetter(kPos.getColumn()-1)+Integer.toString(kPos.getRow());
@@ -657,8 +695,19 @@ public class chess {
 			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
 				canMove = true;
 			
-			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
+			//place king in new position for testing
+			piece tempMovePiece = board.get(testPos);
+			if(canMove)
+				board.put(testPos, currKing);
+			
+			//check if now there is still a check
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove)) {
+				board.put(kPos, currKing);
+				board.put(testPos, tempMovePiece);
 				return false;
+			}
+			//otherwise place king back where it came from
+			board.put(testPos, tempMovePiece);
 		}
 		if((kPos.getColumn()-1) >= 1 && (kPos.getRow() +1) <=8) {
 			String testPosition = getColLetter(kPos.getColumn()-1)+Integer.toString(kPos.getRow()+1);
@@ -669,9 +718,20 @@ public class chess {
 				canMove = true;
 			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
 				canMove = true;
+
+			//place king in new position for testing
+			piece tempMovePiece = board.get(testPos);
+			if(canMove)
+				board.put(testPos, currKing);
 			
-			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
+			//check if now there is still a check
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove)) {
+				board.put(kPos, currKing);
+				board.put(testPos, tempMovePiece);
 				return false;
+			}
+			//otherwise place king back where it came from
+			board.put(testPos, tempMovePiece);
 		}
 		if((kPos.getColumn()-1) >= 1 && (kPos.getRow() -1) >=1) {
 			String testPosition = getColLetter(kPos.getColumn()-1)+Integer.toString(kPos.getRow()-1);
@@ -683,8 +743,19 @@ public class chess {
 			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
 				canMove = true;
 			
-			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
+			//place king in new position for testing
+			piece tempMovePiece = board.get(testPos);
+			if(canMove)
+				board.put(testPos, currKing);
+			
+			//check if now there is still a check
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove)) {
+				board.put(kPos, currKing);
+				board.put(testPos, tempMovePiece);
 				return false;
+			}
+			//otherwise place king back where it came from
+			board.put(testPos, tempMovePiece);
 		}
 		if((kPos.getRow()+1) <= 8) {
 			String testPosition = getColLetter(kPos.getColumn())+Integer.toString(kPos.getRow()+1);
@@ -696,11 +767,23 @@ public class chess {
 			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
 				canMove = true;
 			
-			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
+			//place king in new position for testing
+			piece tempMovePiece = board.get(testPos);
+			if(canMove)
+				board.put(testPos, currKing);
+			
+			//check if now there is still a check
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove)) {
+				board.put(kPos, currKing);
+				board.put(testPos, tempMovePiece);
 				return false;
+			}
+			//otherwise place king back where it came from
+			board.put(testPos, tempMovePiece);
 		}
 		if((kPos.getRow()-1) >= 1) {
 			String testPosition = getColLetter(kPos.getColumn())+Integer.toString(kPos.getRow()-1);
+			
 			//Is moving to this position allowed for the king
 			position testPos = toIntPosition(testPosition);
 			boolean canMove = false;
@@ -709,9 +792,22 @@ public class chess {
 			else if(!isWhiteMove && board.get(testPos).getColor() != 'b')
 				canMove = true;
 			
-			if(canMove && !isCheck(testPosition, isWhiteMove, numMove))
+			//place king in new position for testing
+			piece tempMovePiece = board.get(testPos);
+			if(canMove)
+				board.put(testPos, currKing);
+			
+			//check if now there is still a check
+			if(canMove && !isCheck(testPosition, isWhiteMove, numMove)) {
+				board.put(kPos, currKing);
+				board.put(testPos, tempMovePiece);
 				return false;
+			}
+			//otherwise place king back where it came from
+			board.put(testPos, tempMovePiece);
 		}
+		
+		board.put(kPos, currKing);
 		
 		return true;
 	}

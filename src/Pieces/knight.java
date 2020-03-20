@@ -18,7 +18,6 @@ public class knight extends piece{
 	 * validMove overrides super class's validMove to check if move is valid for the piece
 	 * it can only move 2 steps vertical and 1 step horizontal OR
 	 * 1 step vertical and 2 steps horizontal
-	 * makes sure it does not jump over other pieces in the path
 	 * 
 	 * @param currPos is the current position of the piece
 	 * @param newPos is the position the piece wants to move to

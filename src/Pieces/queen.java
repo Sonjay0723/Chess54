@@ -103,7 +103,7 @@ public class queen extends piece{
 				for (int i = rowNum - 1; i > newRowNum; i--) {
 					int j;
 					
-					if (!right)
+					if (right)
 						j = i - rowNum + colNum;
 					else
 						j = rowNum - i + colNum;

@@ -41,6 +41,7 @@ public class bishop extends piece{
 		
 		//check if move valid(diagonal only, cannot move from old position->same old position)
 		if(Math.abs(rowNum - newRowNum) == Math.abs(colNum - newColNum) && !currPos.equals(newPos)) {
+			//make sure there are no pawn it is attempting to jump over in between
 			boolean up = (rowNum - newRowNum) < 0 ? true : false;
 			boolean right = (colNum - newColNum) < 0 ? false : true;
 			
@@ -61,7 +62,7 @@ public class bishop extends piece{
 				for (int i = rowNum - 1; i > newRowNum; i--) {
 					int j;
 					
-					if (!right)
+					if (right)
 						j = i - rowNum + colNum;
 					else
 						j = rowNum - i + colNum;
