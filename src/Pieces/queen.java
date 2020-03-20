@@ -67,13 +67,13 @@ public class queen extends piece{
 			boolean right = (colNum - newColNum) < 0 ? false : true;
 			
 			if (right) {
-				for (int i = colNum + 1; i < newColNum; i++) {
+				for (int i = colNum - 1; i > newColNum; i--) {
 					if (!(chess.board.get(new position(rowNum, i)) instanceof emptySquare))
 						return false;
 				}
 			}
 			else {
-				for (int i = colNum - 1; i > newColNum; i--) {
+				for (int i = colNum + 1; i < newColNum; i++) {
 					if (!(chess.board.get(new position(rowNum, i)) instanceof emptySquare))
 						return false;
 				}

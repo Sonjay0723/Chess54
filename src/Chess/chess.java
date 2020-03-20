@@ -810,6 +810,48 @@ public class chess {
 		
 		board.put(kPos, currKing);
 		
+		//check to see if your own piece can attack the piece putting the king in check
+		piece oppPieces = null;
+		position enemy = null;
+		piece ownPieces = null;
+		//check if black pieces can attack white king
+		if(isWhiteMove) {
+			//for all other black pieces, test if any of them can move to given position
+			for (position opponentPiecePos: board.keySet()) {
+				oppPieces = board.get(opponentPiecePos);
+				if(oppPieces.getColor()=='b' && oppPieces.validMove(opponentPiecePos, kPos, isWhiteMove, numMove)) {
+					enemy = opponentPiecePos;
+					break;
+				}
+			}
+			
+			//test all other pieces to see if they can save the king
+			for (position ownPiecePos: board.keySet()) {
+				ownPieces = board.get(ownPiecePos);
+				if ((ownPieces.getType()!='K' && ownPieces.getColor()=='w') && ownPieces.validMove(ownPiecePos, enemy, isWhiteMove, numMove))
+					return false;
+			}
+		}
+		
+		//check if white pieces can attack black king
+		else {
+			//for all other white pieces, test if any of them can move to given position
+			for (position opponentPiecePos: board.keySet()) {
+				oppPieces = board.get(opponentPiecePos);
+				if(oppPieces.getColor()=='w' && oppPieces.validMove(opponentPiecePos, kPos, isWhiteMove, numMove)) {
+					enemy = opponentPiecePos;
+					break;
+				}
+			}
+			
+			//test all other pieces to see if they can save the king
+			for (position ownPiecePos: board.keySet()) {
+				ownPieces = board.get(ownPiecePos);
+				if ((ownPieces.getType()!='K' && ownPieces.getColor()=='b') && ownPieces.validMove(ownPiecePos, enemy, isWhiteMove, numMove))
+					return false;
+			}
+		}
+		
 		return true;
 	}
 	
