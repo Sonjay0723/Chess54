@@ -315,6 +315,7 @@ public class chess {
 				//check if there is a checkmate with current player now that old player has made a move
 				if(isCheck(kingPosition(whiteMove),whiteMove, numTurns)) {
 					if(isCheckMate(kingPosition(whiteMove), whiteMove, numTurns)) {
+						System.out.println("Checkmate\n");
 						if(whiteMove) 
 							System.out.println("Black wins");
 						else
