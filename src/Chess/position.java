@@ -72,17 +72,17 @@ public class position {
 	 * @return a string position corresponding to the object position
 	 */
 	public String toStringPos() {
-		return (String.valueOf(getColLetter(this.getColumn())).concat(Integer.toString(this.getRow())));
+		return (String.valueOf(getColLet(this.getColumn())).concat(Integer.toString(this.getRow())));
 	}
 	
 	/**
-	 * getColLetter is to find the corresponding letter to the integer column field
+	 * getColLet is to find the corresponding letter to the integer column field
 	 * 
 	 * @param colNum is the character of the column
 	 * 
 	 * @return a char that corresponds with the given integer of the column
 	 */
-	public static char getColLetter(int colNum) {
+	public static char getColLet(int colNum) {
 		if(colNum == 8)
 			return 'a';
 		else if(colNum == 7)

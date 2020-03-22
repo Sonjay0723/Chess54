@@ -91,7 +91,7 @@ public class chess {
 		String input;
 		String[] inputArr = new String[3];
 		
-		//boolean values + int that is needed for EnPassant
+		//boolean values + int number of turns that is needed for EnPassant
 		boolean whiteMove = true;
 		boolean askDraw = false;
 		boolean continueGame = true;
@@ -208,6 +208,8 @@ public class chess {
 					movingPiece.setMovement(movingPiece.getMovement()-1);
 					board.put(toIntPosition(inputArr[0]), movingPiece);
 					board.put(toIntPosition(inputArr[1]), takeOverPiece);
+					//might have been pawn so reset twoSteps in case
+					chess.board.get(toIntPosition(inputArr[0])).setTwoStep(-1);
 					continue;
 				}
 				
@@ -347,7 +349,7 @@ public class chess {
 	 * 
 	 * @return true if pawn can get a promotion, false otherwise
 	 */
-	private static boolean isPromotion(String currPos, String newPos, boolean isWhiteMove) {
+	public static boolean isPromotion(String currPos, String newPos, boolean isWhiteMove) {
 		
 		//calculate rowNumbers and column numbers
 		int newRowNum = Integer.parseInt(String.valueOf(newPos.charAt(1)));
@@ -375,7 +377,7 @@ public class chess {
 	 * 
 	 * It has no return type
 	 */
-	private static void checkEnPassant(boolean isWhiteMove, int numTurn) {
+	public static void checkEnPassant(boolean isWhiteMove, int numTurn) {
 		piece pawnPieces;
 		
 		for (position pawnPiecePos: board.keySet()) {
@@ -385,16 +387,16 @@ public class chess {
 				//set all possible EnPassants to numberTurn that can currently do it, ONLY WORKS if set at -1(meaning it has not had the opportunity to do so!)
 				//if white turn
 				if(pawnPieces.getColor() == 'w' && isWhiteMove && (pawnPiecePos.getRow()+1)<=8) {
-					if((pawnPiecePos.getColumn()+1)<=8 && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()+1),(pawnPiecePos.getColumn()+1))).toStringPos(), isWhiteMove, -1))
+					if((pawnPiecePos.getColumn()+1)<=8 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()+1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()+1),(pawnPiecePos.getColumn()+1))).toStringPos(), isWhiteMove, -1))
 						pawnPieces.setEnPassant(numTurn);
-					else if((pawnPiecePos.getColumn()+1)>=1 && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()+1),(pawnPiecePos.getColumn()-1))).toStringPos(), isWhiteMove, -1))
+					else if((pawnPiecePos.getColumn()-1)>=1 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()-1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()+1),(pawnPiecePos.getColumn()-1))).toStringPos(), isWhiteMove, -1))
 						pawnPieces.setEnPassant(numTurn);
 				}
 				//if black turn
 				else if(pawnPieces.getColor() == 'b' && !isWhiteMove && (pawnPiecePos.getRow()-1)>=1) {
-					if((pawnPiecePos.getColumn()+1)<=8 && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()-1),(pawnPiecePos.getColumn()+1))).toStringPos(), isWhiteMove, -1))
+					if((pawnPiecePos.getColumn()+1)<=8 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()+1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()-1),(pawnPiecePos.getColumn()+1))).toStringPos(), isWhiteMove, -1))
 						pawnPieces.setEnPassant(numTurn);
-					else if((pawnPiecePos.getColumn()+1)>=1 && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()-1),(pawnPiecePos.getColumn()-1))).toStringPos(), isWhiteMove, -1))
+					else if((pawnPiecePos.getColumn()-1)>=1 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()-1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()-1),(pawnPiecePos.getColumn()-1))).toStringPos(), isWhiteMove, -1))
 						pawnPieces.setEnPassant(numTurn);
 				}
 			}
@@ -442,6 +444,8 @@ public class chess {
 					return true;
 			}
 			else if(colNum - 1 == newColNum) {
+				System.out.println(board.get(new position(rowNum, colNum-1)).madeTwoStep());
+				System.out.println(numTurn);
 				String val = board.get(new position(rowNum,colNum-1)).getValue();
 				int moves = board.get(new position(rowNum,colNum-1)).getMovement();
 				if(val.equals("bp") && moves == 1)
@@ -564,12 +568,12 @@ public class chess {
 	 * isCheck is a function that tells us if the king(for white OR black, whoever turn it is) is in check/will be in check if moved to positionK)
 	 * 
 	 * @param positionK gives us the possible String position of the king
-	 * @param isWhite tells us whose turn it is(if true, white; if false, black)
+	 * @param isWhiteMove tells us whose turn it is(if true, white; if false, black)
 	 * @param numTurn tells us how many rounds it has been
 	 * 
 	 * @return a boolean, true if the king in positionk will be in check, false otherwise
 	 */
-	private static boolean isCheck(String positionK, boolean isWhiteMove, int numTurn) {
+	public static boolean isCheck(String positionK, boolean isWhiteMove, int numTurn) {
 		piece oppPieces = null;
 		
 		//check if black pieces can attack white king
@@ -605,7 +609,7 @@ public class chess {
 	 * 
 	 * @return a boolean, true if the king in positionk will be in checkmate, false otherwise
 	 */
-	private static boolean isCheckMate(String positionK, boolean isWhiteMove, int numMove) {
+	public static boolean isCheckMate(String positionK, boolean isWhiteMove, int numMove) {
 		
 		//remove current king
 		position kPos = toIntPosition(positionK);
@@ -863,7 +867,7 @@ public class chess {
 	 * 
 	 * @return a string with the position of the king of the given color
 	 */
-	private static String kingPosition(boolean isWhite) {
+	public static String kingPosition(boolean isWhite) {
 		piece oppPieces = null;
 		String retVal = "";
 		
@@ -893,7 +897,7 @@ public class chess {
 	 * 
 	 * @return true if it is a black box, false otherwise
 	 */
-	private static boolean isBlackBox(int row, int col) {
+	public static boolean isBlackBox(int row, int col) {
 		if(((row%2 == 1) && (col%2 == 1)) || ((row%2 == 0) && (col%2 == 0)))
 			return false;
 		return true;
@@ -906,7 +910,7 @@ public class chess {
 	 * 
 	 * @return an integer that corresponds with the letter of the column
 	 */
-	private static int getColInt(char col) {
+	public static int getColInt(char col) {
 
 		if(col == 'a')
 			return 8;
@@ -932,7 +936,7 @@ public class chess {
 	 * 
 	 * @return a char that corresponds with the given integer of the column
 	 */
-	private static char getColLetter(int colNum) {
+	public static char getColLetter(int colNum) {
 		if(colNum == 8)
 			return 'a';
 		else if(colNum == 7)
@@ -957,7 +961,7 @@ public class chess {
 	 * 
 	 * @return a position object that corresponds to the given string position
 	 */
-	private static position toIntPosition(String loc) {
+	public static position toIntPosition(String loc) {
 		return (new position(Integer.parseInt(String.valueOf(loc.charAt(1))), getColInt(loc.charAt(0))));
 	}
 }

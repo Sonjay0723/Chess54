@@ -13,18 +13,20 @@ public abstract class piece {
 	String value;
 	int priorMove;
 	int canEnPassant;
+	int justMadeTwoStep;
 	
 	/**
 	 * Constructor of class
 	 * @param value takes in a String value
 	 * priorMove is an int that keeps track of how many movements the piece has previously made
 	 * canEnPassant is an int to keep track of number of rounds and is meant for pawns to be able to tell if it is the very next round and they can EnPassant
-	 * 
+	 * justMadeTwoStep is for a pawn to tell when it just made a two step and can be killed by EnPassant
 	 */
 	public piece(String value) {
 		this.value = value;
 		priorMove = 0;
 		canEnPassant = -1;
+		justMadeTwoStep = -1;
 	}
 	
 	/**
@@ -97,6 +99,27 @@ public abstract class piece {
 	 */
 	public void setEnPassant(int value) {
 		this.canEnPassant = value;
+	}
+	
+	/**
+	 * madeTwoStep gets the round the piece(only used for pawn) stepped forward by 2
+	 * has no input parameter
+	 * 
+	 * @return an int for the round the piece made a 2 step in
+	 */
+	public int madeTwoStep() {
+		return this.justMadeTwoStep;
+	}
+	
+	/**
+	 * setTwoStep sets the justMadeTwoStep value of the piece(pawn) to the specific not anymore value
+	 * 
+	 * @param roundNum is the int to set the justMadeTwoStep value of the piece to
+	 * 
+	 * has no return value
+	 */
+	public void setTwoStep(int roundNum) {
+		this.justMadeTwoStep = roundNum;
 	}
 	
 	/**

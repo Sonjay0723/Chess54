@@ -73,6 +73,9 @@ public class pawn extends piece{
 				if (newRowNum < rowNum && !(chess.board.get(new position(rowNum - 1, colNum)) instanceof emptySquare))
 					return false;
 				
+				//pawn will take two steps, set it to which move it is!
+				chess.board.get(currPos).setTwoStep(numTurn);
+				
 				return true;
 			}
 				
