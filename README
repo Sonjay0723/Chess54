@@ -1,0 +1,17 @@
+Dhrishti Hazari and Jayon Pitta
+
+This is the implementation of a chess game
+
+The pieces package contains a superclass to create an object for the definition of each piece, with each of them having a value 
+(value consist of two characters, the first one being the color and the second being the type of piece [eg.rook, queen, etc])
+The value is different for emptySquare, meaning no piece is on it, either "##" for a black tile or "  " for a white tile
+There are multiple subclasses in this package, each subclass representing a different piece. These subclasses override the 
+superclass method for weather or not the move is valid.
+
+The Chess package contains 2 classes, one called position and one called chess.
+the position class is creating the object to find various positions on the board and which "pieces" are on each "tile". 
+It is defined by int row and int column(self-explanatory)
+The chess class contains the hashmap that represents the chess board and sets it up with pieces for the start of the game.
+It is also the one that does all the work, it checks for enPassant, Castling, promotions, checks, checkmate, makes sure moves 
+are valid by calling in the corresponding pieces subclass, moves the pieces, ends the game, and all other elements the game 
+is supposed to have.

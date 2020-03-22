@@ -597,6 +597,7 @@ public class chess {
 	
 	/**
 	 * isCheckMate tells is if the king(white or black depending on whose turn it is) is in checkmate by testing all possible movements of the king to see if a check results for all possible movements
+	 * It also makes sure that the king cannot get out of check by another one of the current player's pieces killing the opposing piece that is currently putting the king in the check position
 	 * 
 	 * @param positionK gives us the String position of the king
 	 * @param isWhiteMove tells us whose turn it is(if true, white; if false, black)
