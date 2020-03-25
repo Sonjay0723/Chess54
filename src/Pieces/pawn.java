@@ -65,6 +65,7 @@ public class pawn extends piece{
 			else if(isWhite && ((chess.board.get(newPos) instanceof emptySquare) || chess.board.get(newPos).getColor() == 'b') && chess.isEnPassant(currPos.toStringPos(), newPos.toStringPos(),isWhite, numTurn))
 				return true;
 		}
+		
 		//if 2 steps ahead, MUST BE FIRST MOVE
 		else if(Math.abs(rowNum-newRowNum)==2 && Math.abs(colNum-newColNum)==0 && chess.board.get(newPos) instanceof emptySquare) {
 			if(chess.board.get(currPos).getMovement()==0) {
