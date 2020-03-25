@@ -38,6 +38,10 @@ public class pawn extends piece{
 		int colNum = currPos.getColumn();
 		int newColNum = newPos.getColumn();
 		
+		//check to see if it checks the opposing king
+		if (chess.board.get(newPos).getType()=='K' && chess.board.get(currPos).getColor()!=chess.board.get(newPos).getColor())
+			isWhite = !isWhite;
+		
 		//cannot be in same position
 		if(currPos.equals(newPos))
 			return false;
