@@ -218,8 +218,8 @@ public class chess {
 				board.put(toIntPosition(inputArr[0]), movingPiece);
 				board.put(toIntPosition(inputArr[1]), takeOverPiece);
 				
-				//check EnPassant
-				if(isEnPassant(inputArr[0], inputArr[1], whiteMove, numTurns)) {
+				//check EnPassant, make sure it is attempting EnPassant in the very next round!
+				if(numTurns - board.get(toIntPosition(inputArr[0])).getCanEnPassant() == 0 && isEnPassant(inputArr[0], inputArr[1], whiteMove, numTurns)) {
 					int rowNum = Integer.parseInt(String.valueOf(inputArr[0].charAt(1)));
 					int colNum = getColInt(inputArr[0].charAt(0));
 					int newColNum = getColInt(inputArr[1].charAt(0));
@@ -229,12 +229,18 @@ public class chess {
 							board.put(new position(rowNum,colNum+1), new emptySquare("##"));
 						else
 							board.put(new position(rowNum,colNum+1), new emptySquare("  "));
+						//check if there was other pawn for which EnPassant was possible, set to -1 again
+						if(colNum+2 <= 8 && board.get(new position(rowNum, colNum+2)).getValue().equals(movingPiece.getValue()))
+							board.get(new position(rowNum, colNum+2)).setEnPassant(-1);
 					}
 					else if(colNum-1 == newColNum) {
 						if(isBlackBox(rowNum,colNum-1))
 							board.put(new position(rowNum,colNum-1), new emptySquare("##"));
 						else
 							board.put(new position(rowNum,colNum-1), new emptySquare("  "));
+						//check if there was other pawn for which EnPassant was possible, set to -1 again
+						if(colNum-2 >= 1 && board.get(new position(rowNum, colNum-2)).getValue().equals(movingPiece.getValue()))
+							board.get(new position(rowNum, colNum-2)).setEnPassant(-1);
 					}
 				}
 				
@@ -302,9 +308,6 @@ public class chess {
 					//give same movement as pawn
 					board.get(toIntPosition(inputArr[1])).setMovement(movingPiece.getMovement());
 				}
-				
-				//Now that piece has moved, reset EnPassant(in case it was a pawn)!
-				board.get(toIntPosition(inputArr[1])).setEnPassant(-1);
 					
 				//it is now the other person's turn!
 				whiteMove = !whiteMove;
@@ -387,16 +390,16 @@ public class chess {
 				//set all possible EnPassants to numberTurn that can currently do it, ONLY WORKS if set at -1(meaning it has not had the opportunity to do so!)
 				//if white turn
 				if(pawnPieces.getColor() == 'w' && isWhiteMove && (pawnPiecePos.getRow()+1)<=8) {
-					if((pawnPiecePos.getColumn()+1)<=8 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()+1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()+1),(pawnPiecePos.getColumn()+1))).toStringPos(), isWhiteMove, -1))
+					if((pawnPiecePos.getColumn()+1)<=8 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()+1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()+1),(pawnPiecePos.getColumn()+1))).toStringPos(), isWhiteMove, numTurn))
 						pawnPieces.setEnPassant(numTurn);
-					else if((pawnPiecePos.getColumn()-1)>=1 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()-1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()+1),(pawnPiecePos.getColumn()-1))).toStringPos(), isWhiteMove, -1))
+					if((pawnPiecePos.getColumn()-1)>=1 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()-1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()+1),(pawnPiecePos.getColumn()-1))).toStringPos(), isWhiteMove, numTurn))
 						pawnPieces.setEnPassant(numTurn);
 				}
 				//if black turn
 				else if(pawnPieces.getColor() == 'b' && !isWhiteMove && (pawnPiecePos.getRow()-1)>=1) {
-					if((pawnPiecePos.getColumn()+1)<=8 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()+1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()-1),(pawnPiecePos.getColumn()+1))).toStringPos(), isWhiteMove, -1))
+					if((pawnPiecePos.getColumn()+1)<=8 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()+1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()-1),(pawnPiecePos.getColumn()+1))).toStringPos(), isWhiteMove, numTurn))
 						pawnPieces.setEnPassant(numTurn);
-					else if((pawnPiecePos.getColumn()-1)>=1 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()-1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()-1),(pawnPiecePos.getColumn()-1))).toStringPos(), isWhiteMove, -1))
+					if((pawnPiecePos.getColumn()-1)>=1 && (numTurn - board.get(new position(pawnPiecePos.getRow(),(pawnPiecePos.getColumn()-1))).madeTwoStep() == 1) && pawnPieces.getCanEnPassant() == -1 && isEnPassant(pawnPiecePos.toStringPos(), (new position((pawnPiecePos.getRow()-1),(pawnPiecePos.getColumn()-1))).toStringPos(), isWhiteMove, numTurn))
 						pawnPieces.setEnPassant(numTurn);
 				}
 			}
@@ -427,8 +430,8 @@ public class chess {
 			return false;
 		
 		//must be allowed to EnPassant(Can only do so in very next turn!)
-		if(numTurn - board.get(toIntPosition(currPos)).getCanEnPassant() != 0)
-			return false;
+		//if(numTurn - board.get(toIntPosition(currPos)).getCanEnPassant() != 0)
+		//	return false;
 		
 		//EnPassant for white
 		if(isWhiteMove) {
@@ -436,16 +439,18 @@ public class chess {
 			if(rowNum != 5 && newRowNum != 6)
 				return false;
 			
-			//check if black pawn to the right or to the left
+			//check if black pawn to the right or to the left, make sure piece being killed Just took 2 steps the last round!
 			if(colNum + 1 == newColNum) {
+				if(numTurn - board.get(new position(rowNum,colNum+1)).madeTwoStep()!=1)
+					return false;
 				String val = board.get(new position(rowNum,colNum+1)).getValue();
 				int moves = board.get(new position(rowNum,colNum+1)).getMovement();
 				if(val.equals("bp") && moves == 1) 
 					return true;
 			}
 			else if(colNum - 1 == newColNum) {
-				System.out.println(board.get(new position(rowNum, colNum-1)).madeTwoStep());
-				System.out.println(numTurn);
+				if(numTurn - board.get(new position(rowNum,colNum-1)).madeTwoStep()!=1)
+					return false;
 				String val = board.get(new position(rowNum,colNum-1)).getValue();
 				int moves = board.get(new position(rowNum,colNum-1)).getMovement();
 				if(val.equals("bp") && moves == 1)
@@ -459,14 +464,18 @@ public class chess {
 			if(rowNum != 4 && newRowNum != 3)
 				return false;
 			
-			//check if white pawn to the right or to the left
+			//check if white pawn to the right or to the left, make sure piece being killed Just took 2 steps the last round!
 			if(colNum + 1 == newColNum) {
+				if(numTurn - board.get(new position(rowNum,colNum+1)).madeTwoStep()!=1)
+					return false;
 				String val = board.get(new position(rowNum,colNum+1)).getValue();
 				int moves = board.get(new position(rowNum,colNum+1)).getMovement();
 				if(val.equals("wp") && moves == 1) 
 					return true;
 			}
 			else if(colNum - 1 == newColNum) {
+				if(numTurn - board.get(new position(rowNum,colNum-1)).madeTwoStep()!=1)
+					return false;
 				String val = board.get(new position(rowNum,colNum-1)).getValue();
 				int moves = board.get(new position(rowNum,colNum-1)).getMovement();
 				if(val.equals("wp") && moves == 1) 
